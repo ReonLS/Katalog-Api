@@ -1,5 +1,14 @@
 package models
 
+//Repository Pattern
+type UserRepository interface{
+	GetAllUsers()([]*User, error)
+	GetUserbyId(id int)(*User, error)
+	CreateUser(model *UserRequest)(*User, error)
+	UpdateUser(id int, req *UserRequest)(*User, error)
+	DeleteUser(id int)(*User, error)
+}
+
 type User struct{
 	Id int
 	Name string

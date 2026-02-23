@@ -9,6 +9,11 @@ type UserRepo struct {
 	DB *sql.DB
 }
 
+//constructors untuk decoupling
+func NewUserRepo(db *sql.DB) *UserRepo {
+	return &UserRepo{DB: db}
+}
+
 func (ur *UserRepo) GetAllUsers()([]models.User, error){
 	//Alur: Execute query, return domain struct
 	var data []models.User
@@ -44,7 +49,7 @@ func (ur *UserRepo) GetUserbyId(id int)(models.User, error){
 	return data, nil
 }
 
-func (ur *UserRepo) CreateUsers(model models.UserRequest)(models.User, error) {
+func (ur *UserRepo) CreateUser(model models.UserRequest)(models.User, error) {
 	//Alur : buat object tampungan untuk simpan request ke domain struct
 	//autofill isAdmin == 0 (false) karna admin pasti inject akun dari belakang
 	//return domain struct
@@ -78,12 +83,54 @@ func (ur *UserRepo) UpdateUser(id int, req models.UserRequest)(models.User, erro
 		Name: req.Name,
 		Email: req.Email,
 	}
+
+	//exec query
 	query := "update product set name=?, email=? where id = ?"
 	result, err := ur.DB.Exec(query, data.Name, data.Email, data.Id)
-
-	if err := rows.Scan(&data.Id, &data.Name, &data.Email, &data.IsAdmin); err != nil{
+	if err != nil {
+		return models.User{}, err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return models.User{}, err
+	}
+	if rows == 0 {
 		return models.User{}, err
 	}
 
+	//ambil isAdmin
+	query = "Select isAdmin from user where id = ?"
+	if err := ur.DB.QueryRow(query).Scan(&data.IsAdmin); err != nil {
+		return models.User{}, err
+	}
+
+	return data, nil
+}
+
+func (ur *UserRepo) DeleteUser(id int)(models.User, error){
+	//Alur: Execute query, return domain struct
+	data := models.User{
+		Id: id,
+	}
+
+	//buat response
+	err := ur.DB.QueryRow("select name,email,isAdmin from user where id = ?", id).
+		Scan(&data.Name, &data.Email, &data.IsAdmin)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	//exec query
+	result, err := ur.DB.Exec("delete from user where id = ?", id)
+	if err != nil {
+		return models.User{}, err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return models.User{}, err
+	}
+	if rows == 0 {
+		return models.User{}, err
+	}
 	return data, nil
 }

@@ -15,14 +15,21 @@ func main() {
 	db := config.Connect()
 	defer db.Close()
 
-	//Dependency injection
-	repository := repository.ProductRepo{DB: db}
-	service := service.ProductService{Repo: &repository}
-	handler := handler.ProductHandler{Service: &service}
-	prodRoute := route.ProductRoute{Handler: &handler}
+	//products
+	prodRepo := repository.ProductRepo{DB: db}
+	prodService := service.ProductService{Repo: &prodRepo}
+	prodHandler := handler.ProductHandler{Service: &prodService}
+	prodRoute := route.Route{ProdHandler: &prodHandler}
+
+	//user
+	userRepo := repository.UserRepo{DB: db}
+	userService := service.UserService{Repo: &userRepo}
+	userHandler := handler.UserHandler{Service: &userService}
+	userRoute := route.Route{UserHandler: &userHandler}
 
 	mux := http.NewServeMux()
 	prodRoute.Product(mux)
+	userRoute.User(mux)
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {

@@ -1,5 +1,13 @@
 package models
 
+//repository pattern
+type ProductRepository interface{
+	GetProduct() ([]*Product, error)
+	InsertProduct(req *ProductRequest) (*Product, error)
+	UpdateProductByID(id int, req *ProductRequest) (*Product, error)
+	DeleteProductByID(id int) (*Product, error)
+}
+
 type Product struct{
 	Id int
 	UserId int

@@ -135,5 +135,9 @@ func (ph *ProductHandler) DeleteProductByID(rw http.ResponseWriter, r *http.Requ
 	rw.WriteHeader(http.StatusOK)
 
 	//tembak ke stream
-	json.NewEncoder(rw).Encode(response)
+	err = json.NewEncoder(rw).Encode(response)
+	if err != nil {
+		http.Error(rw, "", http.StatusInternalServerError)
+		return
+	}
 }

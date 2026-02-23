@@ -1,12 +1,16 @@
 package service
 
 import (
-	"simple-product-api/repository"
 	"simple-product-api/models"
 )
 
 type UserService struct{
-	Repo *repository.UserRepo
+	Repo models.UserRepository
+}
+
+//constructors
+func NewUserService(repo models.UserRepository) *UserService {
+	return &UserService{Repo: repo}
 }
 
 func ToAdminUserResponse(user models.User) (models.AdminUserResponse){
@@ -38,4 +42,54 @@ func (us *UserService) GetAllUsers()([]models.AdminUserResponse, error){
 		response = append(response, ToAdminUserResponse(rows))
 	}
 	return response, nil
+}
+
+func (us *UserService) AdminGetUserbyId(id int) (models.AdminUserResponse, error) {
+	
+	data, err := us.Repo.GetUserbyId(id)
+	if err != nil {
+		return models.AdminUserResponse{}, err
+	}
+
+	return ToAdminUserResponse(data), nil
+}
+
+func (us *UserService) GetUserbyId(id int) (models.UserResponse, error) {
+	
+	data, err := us.Repo.GetUserbyId(id)
+	if err != nil {
+		return models.UserResponse{}, err
+	}
+
+	return ToUserResponse(data), nil
+}
+
+func (us *UserService) CreateUser(req models.UserRequest) (models.AdminUserResponse, error) {
+	
+	data, err := us.Repo.CreateUser(req)
+	if err != nil {
+		return models.AdminUserResponse{}, err
+	}
+
+	return ToAdminUserResponse(data), nil
+}
+
+func (us *UserService) UpdateUserByID(id int, req models.UserRequest) (models.UserResponse, error) {
+	
+	data, err := us.Repo.UpdateUser(id, req)
+	if err != nil {
+		return models.UserResponse{}, err
+	}
+
+	return ToUserResponse(data), nil
+}
+
+func (us *UserService) DeleteUser(id int) (models.AdminUserResponse, error) {
+	
+	data, err := us.Repo.DeleteUser(id)
+	if err != nil {
+		return models.AdminUserResponse{}, err
+	}
+
+	return ToAdminUserResponse(data), nil
 }

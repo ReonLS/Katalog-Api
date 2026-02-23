@@ -10,13 +10,17 @@ type Route struct{
 }
 
 //centralized handler func for /product
-func (pr *Route) Product (mux *http.ServeMux){
-	mux.HandleFunc("GET /product", pr.ProdHandler.GetProduct)
-	mux.HandleFunc("POST /product", pr.ProdHandler.InsertProduct)
-	mux.HandleFunc("PUT /product/{id}", pr.ProdHandler.UpdateProductByID)
-	mux.HandleFunc("DELETE /product/{id}", pr.ProdHandler.DeleteProductByID)
+func (r *Route) Product (mux *http.ServeMux){
+	mux.HandleFunc("GET /product", r.ProdHandler.GetProduct)
+	mux.HandleFunc("POST /product", r.ProdHandler.InsertProduct)
+	mux.HandleFunc("PUT /product/{id}", r.ProdHandler.UpdateProductByID)
+	mux.HandleFunc("DELETE /product/{id}", r.ProdHandler.DeleteProductByID)
 }
 
-func (uh *Route) User (mux *http.ServeMux){
-	mux.HandleFunc("GET /user", uh.UserHandler.GetAllUsers)
+func (r *Route) User (mux *http.ServeMux){
+	mux.HandleFunc("GET /user", r.UserHandler.GetAllUsers)
+	mux.HandleFunc("GET /user/{id}", r.UserHandler.GetUserbyId)
+	mux.HandleFunc("POST /user", r.UserHandler.CreateUser)
+	mux.HandleFunc("PUT /user/{id}", r.UserHandler.UpdateUser)
+	mux.HandleFunc("DELETE /user/{id}", r.UserHandler.DeleteUser)
 }
