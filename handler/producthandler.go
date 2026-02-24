@@ -13,11 +13,11 @@ import (
 // buat instans DB, jdi layer handler bisa exec query
 // sebenarnya ini layer repo, yg diakses service, yg diakses handler tp for now okela
 type ProductHandler struct {
-	Service service.ProductService
+	Service *service.ProductService
 }
 
 func NewProductHandler(service *service.ProductService) *ProductHandler{
-	return &ProductHandler{Service: *service}
+	return &ProductHandler{Service: service}
 }
 
 // Fungsi utama responds to a request (getting all product)

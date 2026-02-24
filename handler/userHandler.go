@@ -11,11 +11,11 @@ import (
 )
 
 type UserHandler struct {
-	Service service.UserService
+	Service *service.UserService
 }
 
 func NewUserHandler(service *service.UserService) *UserHandler{
-	return &UserHandler{Service: *service}
+	return &UserHandler{Service: service}
 }
 
 //mungkin perlu implement unique email, harusnya ini di models
