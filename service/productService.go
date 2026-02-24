@@ -1,20 +1,19 @@
 package service
 
-import "simple-product-api/repository"
 import "simple-product-api/models"
 
 type ProductService struct{
-	Repo repository.ProductRepo
+	Repo models.ProductRepository
 }
 
 
-func NewProductService(repo repository.ProductRepo) *ProductService{
+func NewProductService(repo models.ProductRepository) *ProductService{
 	return &ProductService{Repo: repo}
 }
 
-func (pr *ProductService) ToProductResponse(p models.Product) models.ProductResponse{
+func (pr *ProductService) ToProductResponse(p *models.Product) *models.ProductResponse{
 	//transform dari domain struct(db) jd response (json-embedded)
-	return models.ProductResponse{
+	return &models.ProductResponse{
 		Id: p.Id,
 		Namaprod: p.Namaprod,
 		Kategori: p.Kategori,
@@ -23,13 +22,13 @@ func (pr *ProductService) ToProductResponse(p models.Product) models.ProductResp
 	}
 }
 
-func (pr *ProductService) GetProduct()([]models.ProductResponse, error){
+func (pr *ProductService) GetProduct()([]*models.ProductResponse, error){
 	//Alur : Nerima domain struct, transform jadi response 
-	var dataResp []models.ProductResponse
+	var dataResp []*models.ProductResponse
 
 	data, err := pr.Repo.GetProduct()
 	if err != nil {
-		return []models.ProductResponse{}, err
+		return nil, err
 	}
 
 	//for loop access masing2
@@ -41,36 +40,49 @@ func (pr *ProductService) GetProduct()([]models.ProductResponse, error){
 	return dataResp, nil
 }
 
-func (pr *ProductService) InsertProduct(req models.ProductRequest) (models.ProductResponse, error){
+func (pr *ProductService) InsertProduct(req *models.ProductRequest) (*models.ProductResponse, error){
 	//Alur : Nerima domain struct, generate product.response
+	var data = &models.Product{
+		Namaprod: req.Namaprod,
+		Kategori: req.Kategori,
+		Price: req.Price,
+		Stock: req.Stock,
+	}
 
-	product, err := pr.Repo.InsertProduct(req)
+	product, err := pr.Repo.InsertProduct(data)
 	if err != nil {
-		return models.ProductResponse{}, err
+		return nil, err
 	}
 
 	//aman
 	return pr.ToProductResponse(product), nil
 }
 
-func (pr *ProductService) UpdateProductByID(id int, req models.ProductRequest) (models.ProductResponse, error){
+func (pr *ProductService) UpdateProductByID(id int, req *models.ProductRequest) (*models.ProductResponse, error){
 	//Alur : Nerima domain struct, generate product.response
+	var data = &models.Product{
+		Id: id,
+		Namaprod: req.Namaprod,
+		Kategori: req.Kategori,
+		Price: req.Price,
+		Stock: req.Stock,
+	}
 
-	product, err := pr.Repo.UpdateProductByID(id, req)
+	product, err := pr.Repo.UpdateProductByID(id, data)
 	if err != nil {
-		return models.ProductResponse{}, err
+		return nil, err
 	}
 
 	//aman
 	return pr.ToProductResponse(product), nil
 }
 
-func (pr *ProductService) DeleteProductByID(id int) (models.ProductResponse, error){
+func (pr *ProductService) DeleteProductByID(id int) (*models.ProductResponse, error){
 	//Alur : Nerima domain struct, generate product.response
 
 	product, err := pr.Repo.DeleteProductByID(id)
 	if err != nil {
-		return models.ProductResponse{}, err
+		return nil, err
 	}
 	//aman
 	return pr.ToProductResponse(product), nil

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"simple-product-api/models"
 )
 
@@ -14,21 +15,21 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 	return &UserRepo{DB: db}
 }
 
-func (ur *UserRepo) GetAllUsers()([]models.User, error){
+func (ur *UserRepo) GetAllUsers()([]*models.User, error){
 	//Alur: Execute query, return domain struct
-	var data []models.User
+	var data []*models.User
 
 	rows, err := ur.DB.Query("Select * from user")
 	if err != nil {
-		return []models.User{}, err
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var row models.User
+		var row = &models.User{}
 
 		if err := rows.Scan(&row.Id, &row.Name, &row.Email, &row.IsAdmin); err != nil{
-			return []models.User{}, err
+			return nil, err
 		}
 		data = append(data, row)
 	}
@@ -36,101 +37,94 @@ func (ur *UserRepo) GetAllUsers()([]models.User, error){
 	return data, nil
 }
 
-func (ur *UserRepo) GetUserbyId(id int)(models.User, error){
+func (ur *UserRepo) GetUserbyId(id int)(*models.User, error){
 	//Alur: Execute query, return domain struct
-	var data models.User
+	var data = &models.User{}
 
 	rows := ur.DB.QueryRow("Select * from user where id = ?", id)
 
 	if err := rows.Scan(&data.Id, &data.Name, &data.Email, &data.IsAdmin); err != nil{
-		return models.User{}, err
+		return nil, err
 	}
 
 	return data, nil
 }
 
-func (ur *UserRepo) CreateUser(model models.UserRequest)(models.User, error) {
+func (ur *UserRepo) CreateUser(model *models.User)(*models.User, error) {
 	//Alur : buat object tampungan untuk simpan request ke domain struct
-	//autofill isAdmin == 0 (false) karna admin pasti inject akun dari belakang
-	//return domain struct
-
-	data := models.User{
-		Name: model.Name,
-		Email: model.Email,
-		IsAdmin: false,
-	}
+	
 
 	query := "Insert into user (name, email, isAdmin) values (?,?,?)"
-	result, err := ur.DB.Exec(query, data.Name, data.Email, data.IsAdmin)
+	result, err := ur.DB.Exec(query, model.Name, model.Email, model.IsAdmin)
 	if err != nil {
-		return models.User{}, err
+		return nil, err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rows == 0 {
+		return nil, errors.New("User Not Created")
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 	//inject auto generated id ke domain struct
-	data.Id = int(id)
+	model.Id = int(id)
 
-	return data, nil
+	return model, nil
 }
 
-func (ur *UserRepo) UpdateUser(id int, req models.UserRequest)(models.User, error){
+func (ur *UserRepo) UpdateUser(id int, model *models.User)(*models.User, error){
 	//Alur: Execute query, return domain struct
-	data := models.User{
-		Id: id,
-		Name: req.Name,
-		Email: req.Email,
-	}
-
 	//exec query
-	query := "update product set name=?, email=? where id = ?"
-	result, err := ur.DB.Exec(query, data.Name, data.Email, data.Id)
+	query := "update user set name=?, email=? where id = ?"
+	result, err := ur.DB.Exec(query, model.Name, model.Email, id)
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 	if rows == 0 {
-		return models.User{}, err
+		return nil, errors.New("User Not Updated")
 	}
 
 	//ambil isAdmin
 	query = "Select isAdmin from user where id = ?"
-	if err := ur.DB.QueryRow(query).Scan(&data.IsAdmin); err != nil {
-		return models.User{}, err
+	if err := ur.DB.QueryRow(query).Scan(&model.IsAdmin); err != nil {
+		return nil, err
 	}
 
-	return data, nil
+	return model, nil
 }
 
-func (ur *UserRepo) DeleteUser(id int)(models.User, error){
+func (ur *UserRepo) DeleteUser(id int)(*models.User, error){
 	//Alur: Execute query, return domain struct
-	data := models.User{
-		Id: id,
-	}
+	var data = &models.User{}
 
 	//buat response
 	err := ur.DB.QueryRow("select name,email,isAdmin from user where id = ?", id).
 		Scan(&data.Name, &data.Email, &data.IsAdmin)
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 
 	//exec query
 	result, err := ur.DB.Exec("delete from user where id = ?", id)
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 	if rows == 0 {
-		return models.User{}, err
+		return nil, errors.New("User Not Deleted")
 	}
 	return data, nil
 }

@@ -11,10 +11,14 @@ import (
 )
 
 type UserHandler struct {
-	Service *service.UserService
+	Service service.UserService
 }
 
-//mungkin perlu implement unique email
+func NewUserHandler(service *service.UserService) *UserHandler{
+	return &UserHandler{Service: *service}
+}
+
+//mungkin perlu implement unique email, harusnya ini di models
 func (uh *UserHandler) validateEmail(email string) error {
 	_, err := mail.ParseAddress(email)
 	return err
@@ -30,7 +34,7 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request){
 	}
 	rw.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(rw).Encode(data)
+	err = json.NewEncoder(rw).Encode(data)
 	if err != nil {
 		//server-side error
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -57,7 +61,7 @@ func (uh *UserHandler) GetUserbyId(rw http.ResponseWriter, r *http.Request){
 	}
 	rw.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(rw).Encode(data)
+	err = json.NewEncoder(rw).Encode(data)
 	if err != nil {
 		//server-side error
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -69,7 +73,7 @@ func (uh *UserHandler) CreateUser(rw http.ResponseWriter, r *http.Request){
 	rw.Header().Set("Content-Type", "application/json")
 
 	//decode
-	var request models.UserRequest
+	var request = &models.UserRequest{}
 	err := json.NewDecoder(r.Body).Decode(&request)
 	defer r.Body.Close()
 
@@ -112,7 +116,7 @@ func (uh *UserHandler) UpdateUser(rw http.ResponseWriter, r *http.Request){
 	}
 
 	//decode
-	var request models.UserRequest
+	var request = &models.UserRequest{}
 	err = json.NewDecoder(r.Body).Decode(&request)
 	defer r.Body.Close()
 
@@ -126,7 +130,7 @@ func (uh *UserHandler) UpdateUser(rw http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	response, err := uh.Service.UpdateUserByID(id, request)
+	response, err := uh.Service.UpdateUser(id, request)
 	if err != nil {
 		http.Error(rw, "", http.StatusBadRequest)
 		return

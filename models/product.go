@@ -3,8 +3,8 @@ package models
 //repository pattern
 type ProductRepository interface{
 	GetProduct() ([]*Product, error)
-	InsertProduct(req *ProductRequest) (*Product, error)
-	UpdateProductByID(id int, req *ProductRequest) (*Product, error)
+	InsertProduct(req *Product) (*Product, error)
+	UpdateProductByID(id int, req *Product) (*Product, error)
 	DeleteProductByID(id int) (*Product, error)
 }
 

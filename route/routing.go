@@ -6,11 +6,11 @@ import "simple-product-api/handler"
 //ngebuat instans of product handler
 type Route struct{
 	ProdHandler handler.ProductHandler
-	UserHandler *handler.UserHandler
+	UserHandler handler.UserHandler
 }
 
-func NewProductRoute(handler handler.ProductHandler) *Route{
-	return &Route{ProdHandler: handler}
+func NewProductRoute(product *handler.ProductHandler, user *handler.UserHandler) *Route{
+	return &Route{ProdHandler: *product, UserHandler: *user}
 }
 
 //centralized handler func for /product

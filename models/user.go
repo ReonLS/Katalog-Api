@@ -4,8 +4,8 @@ package models
 type UserRepository interface{
 	GetAllUsers()([]*User, error)
 	GetUserbyId(id int)(*User, error)
-	CreateUser(model *UserRequest)(*User, error)
-	UpdateUser(id int, req *UserRequest)(*User, error)
+	CreateUser(model *User)(*User, error)
+	UpdateUser(id int, model *User)(*User, error)
 	DeleteUser(id int)(*User, error)
 }
 

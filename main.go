@@ -17,19 +17,19 @@ func main() {
 
 	//products
 	prodRepo := repository.NewProductRepo(db)
-	prodService := service.NewProductService(*prodRepo)
-	prodHandler := handler.NewProductHandler(*prodService)
-	prodRoute := route.Route.ProdHandler
+	prodService := service.NewProductService(prodRepo)
+	prodHandler := handler.NewProductHandler(prodService)
 
 	//user
-	userRepo := repository.UserRepo{DB: db}
-	userService := service.UserService{Repo: &userRepo}
-	userHandler := handler.UserHandler{Service: &userService}
-	userRoute := route.Route{UserHandler: &userHandler}
+	userRepo := repository.NewUserRepo(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
+
+	route := route.NewProductRoute(prodHandler, userHandler)
 
 	mux := http.NewServeMux()
-	prodRoute.Product(mux)
-	userRoute.User(mux)
+	route.Product(mux)
+	route.User(mux)
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {

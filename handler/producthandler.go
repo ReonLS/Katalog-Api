@@ -16,8 +16,8 @@ type ProductHandler struct {
 	Service service.ProductService
 }
 
-func NewProductHandler(service service.ProductService) *ProductHandler{
-	return &ProductHandler{Service: service}
+func NewProductHandler(service *service.ProductService) *ProductHandler{
+	return &ProductHandler{Service: *service}
 }
 
 // Fungsi utama responds to a request (getting all product)
@@ -47,7 +47,7 @@ func (ph *ProductHandler) InsertProduct(rw http.ResponseWriter, r *http.Request)
 	fmt.Println("Masuk POST")
 
 	//membuat tampungan
-	var request models.ProductRequest
+	var request = &models.ProductRequest{}
 	err := json.NewDecoder(r.Body).Decode(&request)
 	defer r.Body.Close()
 
@@ -87,7 +87,7 @@ func (ph *ProductHandler) UpdateProductByID(rw http.ResponseWriter, r *http.Requ
 	}
 
 	//tampungan decode
-	var request models.ProductRequest
+	var request = &models.ProductRequest{}
 
 	err = json.NewDecoder(r.Body).Decode(&request)
 	defer r.Body.Close()

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"simple-product-api/models"
 )
@@ -21,15 +22,15 @@ func (pr *ProductRepo) GetProduct() ([]*models.Product, error) {
 
 	rows, err := pr.DB.Query("Select * from product")
 	if err != nil {
-		return []models.Product{}, err
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var rowData models.Product
+		var rowData = &models.Product{}
 
 		if err = rows.Scan(&rowData.Id, &rowData.Namaprod, &rowData.Kategori, &rowData.Price, &rowData.Stock); err != nil {
-			return []models.Product{}, err
+			return nil, err
 		}
 		data = append(data, rowData)
 	}
@@ -37,60 +38,52 @@ func (pr *ProductRepo) GetProduct() ([]*models.Product, error) {
 	return data, nil
 }
 
-func (pr *ProductRepo) InsertProduct(req models.ProductRequest) (models.Product, error) {
+func (pr *ProductRepo) InsertProduct(prod *models.Product) (*models.Product, error) {
 	//Alur : Jalanin query, return domain struct (ngamnbil id dari hasil auto increment table)
-
-	//Tampungan domain struct
-	product := models.Product{
-		Namaprod: req.Namaprod,
-		Kategori: req.Kategori,
-		Price:    req.Price,
-		Stock:    req.Stock,
-	}
 
 	//query row exec query dan return data including ID pake returning, sebagai return value
 	query := "Insert into product (namaprod, kategori, price, stock) values (?,?,?,?)"
 
 	//logikanya tu karna domain struct punya value sama aja, disini hasil queryrow return ID
 	//karna cukup butuh mappingan last inserted id untuk generate id product baru
-	result, err := pr.DB.Exec(query, req.Namaprod, req.Kategori, req.Price, req.Stock)
+	result, err := pr.DB.Exec(query, prod.Namaprod, prod.Kategori, prod.Price, prod.Stock)
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rows == 0 {
+		return nil, errors.New("Product Not Created")
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
-	product.Id = int(id)
+	prod.Id = int(id)
 
 	//artinya aman
-	return product, nil
+	return prod, nil
 }
 
-func (pr *ProductRepo) UpdateProductByID(id int, req models.ProductRequest) (models.Product, error) {
+func (pr *ProductRepo) UpdateProductByID(id int, product *models.Product) (*models.Product, error) {
 	//Alur : Jalanin query, return domain struct (semua info property udh dari request)
 
-	product := models.Product{
-		Id:       id, //diambil dari url, dipassing sebagai param
-		Namaprod: req.Namaprod,
-		Kategori: req.Kategori,
-		Price:    req.Price,
-		Stock:    req.Stock,
-	}
-
 	query := "update product set namaprod=?, kategori=?, price=?, stock=? where id = ?"
-	res, err := pr.DB.Exec(query, product.Namaprod, product.Kategori, product.Price, product.Stock, product.Id)
+	res, err := pr.DB.Exec(query, product.Namaprod, product.Kategori, product.Price, product.Stock, id)
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
 	if rows == 0 {
-		return models.Product{}, err
+		return nil, err
 	}
 
 	//berarti aman
@@ -99,11 +92,10 @@ func (pr *ProductRepo) UpdateProductByID(id int, req models.ProductRequest) (mod
 
 // in proper api, query ttp delete unique product id, tp middleware yg bakal authenticate user
 // untuk ensure product ini milik currentuserloginid
-func (pr *ProductRepo) DeleteProductByID(id int) (models.Product, error) {
+func (pr *ProductRepo) DeleteProductByID(id int) (*models.Product, error) {
 	//Alur : Jalanin query, return domain struct (ngamnbil id dari hasil auto increment table)
 
-	//Tampungan domain struct
-	product := models.Product{
+	var product = &models.Product{
 		Id: id,
 	}
 
@@ -113,19 +105,19 @@ func (pr *ProductRepo) DeleteProductByID(id int) (models.Product, error) {
 
 	fmt.Println(product.Id, product.Namaprod, product.Kategori, product.Price, product.Stock)
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
 
 	result, err := pr.DB.Exec("Delete from product where id = ?", id)
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return models.Product{}, err
+		return nil, err
 	}
 	if rowsAff == 0 {
-		return models.Product{}, err
+		return nil, errors.New("Product Not Found!")
 	}
 	//artinya aman
 	return product, nil
