@@ -33,20 +33,22 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 }
 
 //happens after
-func AuthenticateRole(next http.Handler) http.Handler {
-	return http.HandlerFunc( func(w http.ResponseWriter, r *http.Request) {
-		//Alur ambil claims, cek role
-		claims, ok := utils.GetClaimsFromContext(r.Context())
-		if !ok {
-			http.Error(w, "Claims Failed", http.StatusUnauthorized)
-			return
-		}
+func AuthenticateRole(role utils.Role) func(http.Handler) http.Handler{
+	return func (next http.Handler) http.Handler{
+		return http.HandlerFunc( func(w http.ResponseWriter, r *http.Request) {
+			//sebenarnya agak redundant, claims invalid udh stopped di authJWT
+			claims, ok := utils.GetClaimsFromContext(r.Context())
+			if !ok {
+				http.Error(w, "Claims Failed", http.StatusUnauthorized)
+				return
+			}
 
-		//cek roles
-		if claims.Role != string(utils.RoleAdmin){
-			http.Error(w, "Wrong Access Level", http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+			//cek roles
+			if claims.Role != string(role){
+				http.Error(w, "Incorrect Role Access", http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }

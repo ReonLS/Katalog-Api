@@ -8,6 +8,7 @@ import (
 	"simple-product-api/route"
 	"simple-product-api/repository"
 	"simple-product-api/service"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -27,12 +28,10 @@ func main() {
 
 	route := route.NewProductRoute(prodHandler, userHandler)
 
-	mux := http.NewServeMux()
-	route.Product(mux)
-	route.User(mux)
-	route.LoginRegister(mux)
+	r := chi.NewRouter()
+	route.RouteSetup(r)
 
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("Error: ", err.Error())
 	}

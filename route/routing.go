@@ -1,7 +1,12 @@
 package route
 
-import "net/http"
-import "simple-product-api/handler"
+import (
+	"simple-product-api/handler"
+	"simple-product-api/middleware"
+	"simple-product-api/utils"
+
+	"github.com/go-chi/chi/v5"
+)
 
 //ngebuat instans of product handler
 type Route struct{
@@ -14,21 +19,34 @@ func NewProductRoute(product *handler.ProductHandler, user *handler.UserHandler)
 }
 
 //centralized handler func for /product
-func (r *Route) Product (mux *http.ServeMux){
-	mux.HandleFunc("GET /product", r.ProdHandler.GetProduct)
-	mux.HandleFunc("POST /product", r.ProdHandler.InsertProduct)
-	mux.HandleFunc("PUT /product/{id}", r.ProdHandler.UpdateProductByID)
-	mux.HandleFunc("DELETE /product/{id}", r.ProdHandler.DeleteProductByID)
-}
+func (route *Route) RouteSetup (r chi.Router){
+	//Public
+	r.Post("/register", route.UserHandler.Register)
+	r.Post("/login", route.UserHandler.Login)
 
-func (r *Route) User (mux *http.ServeMux){
-	mux.HandleFunc("GET /user", r.UserHandler.GetAllUsers)
-	mux.HandleFunc("GET /user/{id}", r.UserHandler.GetUserbyId)
-	mux.HandleFunc("PUT /user/{id}", r.UserHandler.UpdateUser)
-	mux.HandleFunc("DELETE /user/{id}", r.UserHandler.DeleteUser)
-}
+	//Endpoint: /user
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthenticateJWT)
+		r.Get("/user", route.UserHandler.GetProfile)
+		r.Put("/user", route.UserHandler.UpdateProfile) 
+	})
 
-func (r *Route) LoginRegister (mux *http.ServeMux){
-	mux.HandleFunc("POST /register", r.UserHandler.Register)
-	mux.HandleFunc("POST /login", r.UserHandler.Register)
+	//Endpoint : /admin/user
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(middleware.AuthenticateJWT)
+		r.Use(middleware.AuthenticateRole(utils.RoleAdmin))
+
+		r.Get("/user", route.UserHandler.GetAllUsers) //admin
+		r.Get("/user/{id}", route.UserHandler.AdminGetUserProfile) //admin
+		r.Delete("/user/{id}", route.UserHandler.DeleteUser) //admin
+	})
+
+	//Endpoint: /product
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthenticateJWT)
+		r.Get("/product", route.ProdHandler.GetProduct)
+		r.Post("/product", route.ProdHandler.InsertProduct)
+		r.Put("/product/{id}", route.ProdHandler.UpdateProductByID)
+		r.Delete("/product/{id}", route.ProdHandler.DeleteProductByID)
+	})
 }

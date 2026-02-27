@@ -16,19 +16,19 @@ type ProductHandler struct {
 	Service *service.ProductService
 }
 
-func NewProductHandler(service *service.ProductService) *ProductHandler{
+func NewProductHandler(service *service.ProductService) *ProductHandler {
 	return &ProductHandler{Service: service}
 }
 
 // Fungsi utama responds to a request (getting all product)
 func (ph *ProductHandler) GetProduct(rw http.ResponseWriter, r *http.Request) {
-	//Alur : Nerima response, encode jadi json 
+	//Alur : Nerima response, encode jadi json
 	rw.Header().Set("Content-Type", "application/json")
 
 	//placeholder ngambils claims dari context, ambil id
 	claims, ok := utils.GetClaimsFromContext(r.Context())
 	if !ok {
-		http.Error(rw, "Failed Claims", http.StatusUnauthorized)
+		http.Error(rw, "No Information", http.StatusUnauthorized)
 	}
 
 	products, err := ph.Service.GetProductByUserID(r.Context(), claims.Id)
@@ -63,8 +63,15 @@ func (ph *ProductHandler) InsertProduct(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	//ambil userid from context
+	claims, ok := utils.GetClaimsFromContext(r.Context())
+	if !ok {
+		http.Error(rw, "No Information", http.StatusUnauthorized)
+		return
+	}
+
 	//logikanya gagal kebentuk, berarti user kirim faulty request
-	response, err := ph.Service.InsertProduct(r.Context(), request)
+	response, err := ph.Service.InsertProduct(r.Context(), claims.Id, request)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
@@ -80,9 +87,9 @@ func (ph *ProductHandler) InsertProduct(rw http.ResponseWriter, r *http.Request)
 func (ph *ProductHandler) UpdateProductByID(rw http.ResponseWriter, r *http.Request) {
 	//alur : set header, take id from url.path, decode req.body, call service func, generate respons
 	rw.Header().Set("Content-Type", "application/json")
-	
+
 	//parsing id dari path
-	path := r.URL.Path //{/{id}}
+	path := r.URL.Path                                //{/{id}}
 	stringId := strings.TrimPrefix(path, "/product/") //{id}
 	fmt.Println("Masuk PUT", stringId)
 

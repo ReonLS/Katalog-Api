@@ -2,12 +2,13 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/mail"
 	"simple-product-api/models"
 	"simple-product-api/service"
+	"simple-product-api/utils"
 	"strings"
-	"errors"
 )
 
 type UserHandler struct {
@@ -151,6 +152,31 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request){
 
 	data, err := uh.Service.GetAllUsers(r.Context())
 	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	rw.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(rw).Encode(data)
+	if err != nil {
+		//server-side error
+		http.Error(rw, "Gagal Encode", http.StatusInternalServerError)
+		return
+	}
+}
+
+//User
+func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request){
+	rw.Header().Set("Content-Type", "application/json")
+
+	//Alur: ambil claims dari context, populate id dengan context id
+	claims, ok := utils.GetClaimsFromContext(r.Context())
+	if !ok {
+		http.Error(rw, "Failed Claims", http.StatusUnauthorized)
+	}
+
+	data, err := uh.Service.GetUserProfile(r.Context(), claims.Id)
+	if err != nil {
 		http.Error(rw, "", http.StatusBadRequest)
 		return
 	}
@@ -164,12 +190,13 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request){
 	}
 }
 
-func (uh *UserHandler) GetUserbyId(rw http.ResponseWriter, r *http.Request){
+//Admin
+func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Request){
 	rw.Header().Set("Content-Type", "application/json")
 
 	//generate id from path
 	path := r.URL.Path
-	idstring := strings.TrimPrefix(path, "/user/")
+	idstring := strings.TrimPrefix(path, "/admin/user/")
 
 	data, err := uh.Service.GetUserById(r.Context(), idstring)
 	if err != nil {
@@ -186,12 +213,9 @@ func (uh *UserHandler) GetUserbyId(rw http.ResponseWriter, r *http.Request){
 	}
 }
 
-func (uh *UserHandler) UpdateUser(rw http.ResponseWriter, r *http.Request){
+//user
+func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request){
 	rw.Header().Set("Content-Type", "application/json")
-
-	//generate id from path
-	path := r.URL.Path
-	idstring := strings.TrimPrefix(path, "/user/")
 
 	//decode
 	var request = &models.UserRequest{}
@@ -201,8 +225,14 @@ func (uh *UserHandler) UpdateUser(rw http.ResponseWriter, r *http.Request){
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 	}
+	
+	//Alur: ambil claims dari context, populate id dengan context id
+	claims, ok := utils.GetClaimsFromContext(r.Context())
+	if !ok {
+		http.Error(rw, "Failed Claims", http.StatusUnauthorized)
+	}
 
-	response, err := uh.Service.UpdateUser(r.Context(), idstring, request)
+	response, err := uh.Service.UpdateUserProfile(r.Context(), claims.Id, request)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return

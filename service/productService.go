@@ -56,16 +56,18 @@ func (pr *ProductService) GetProductByUserID(ctx context.Context, id string)([]*
 	return dataResp, nil
 }
 
-func (pr *ProductService) InsertProduct(ctx context.Context, req *models.ProductRequest) (*models.UserProductResponse, error){
+func (pr *ProductService) InsertProduct(ctx context.Context, userid string, req *models.ProductRequest) (*models.UserProductResponse, error){
 	//Alur : Nerima domain struct, generate product.response
 	var data = &models.Product{
+		Id: uuid.New().String(),
+		UserId: userid,
 		Namaprod: req.Namaprod,
 		Kategori: req.Kategori,
 		Price: req.Price,
 		Stock: req.Stock,
 	}
 
-	product, err := pr.Repo.InsertProduct(ctx, data)
+	product, err := pr.Repo.InsertProduct(ctx, userid, data)
 	if err != nil {
 		return nil, err
 	}

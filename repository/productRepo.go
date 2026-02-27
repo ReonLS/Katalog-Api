@@ -39,15 +39,15 @@ func (pr *ProductRepo) GetProductByUserID(ctx context.Context, id string) ([]*mo
 	return data, nil
 }
 
-func (pr *ProductRepo) InsertProduct(ctx context.Context, prod *models.Product) (*models.Product, error) {
+func (pr *ProductRepo) InsertProduct(ctx context.Context, userid string, prod *models.Product) (*models.Product, error) {
 	//Alur : Jalanin query, return domain struct (ngamnbil id dari hasil auto increment table)
 
 	//query row exec query dan return data including ID pake returning, sebagai return value
-	query := "Insert into product (id, namaprod, kategori, price, stock) values (?,?,?,?,?)"
+	query := "Insert into product (id, userid, namaprod, kategori, price, stock) values (?,?,?,?,?)"
 
 	//logikanya tu karna domain struct punya value sama aja, disini hasil queryrow return ID
 	//karna cukup butuh mappingan last inserted id untuk generate id product baru
-	result, err := pr.DB.ExecContext(ctx, query, prod.Id, prod.Namaprod, prod.Kategori, prod.Price, prod.Stock)
+	result, err := pr.DB.ExecContext(ctx, query, prod.Id, prod.UserId, prod.Namaprod, prod.Kategori, prod.Price, prod.Stock)
 	if err != nil {
 		return nil, err
 	}

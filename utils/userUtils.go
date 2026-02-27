@@ -6,3 +6,4 @@ const (
 	RoleUser Role = "User"
 	RoleAdmin Role = "Admin"
 )
+

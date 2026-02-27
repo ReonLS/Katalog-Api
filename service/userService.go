@@ -115,7 +115,7 @@ func (us *UserService) GetUserProfile(ctx context.Context, id string) (*models.U
 	return ToUserResponse(data), nil
 }
 
-func (us *UserService) UpdateUser(ctx context.Context, id string, req *models.UserRequest) (*models.UserResponse, error) {
+func (us *UserService) UpdateUserProfile(ctx context.Context, id string, req *models.UserRequest) (*models.UserResponse, error) {
 	//panggil fungsi hash password, hasilnya diset sebagai password data
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
