@@ -6,9 +6,9 @@ import (
 	"simple-product-api/models"
 	"simple-product-api/service"
 	"simple-product-api/utils"
-	"strconv"
 	"strings"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 // buat instans DB, jdi layer handler bisa exec query
@@ -52,10 +52,13 @@ func (ph *ProductHandler) AdminGetProductUser(rw http.ResponseWriter, r *http.Re
 	//Alur : Nerima response, encode jadi json
 	rw.Header().Set("Content-Type", "application/json")
 
-	//ngambil id from path
-	UserID := chi.URLParam(r, "id")
+		//Parsing id form path, validation
+	userID := chi.URLParam(r, "id")
+	if _, err := uuid.Parse(userID); err != nil{
+		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+	}
 
-	products, err := ph.Service.AdminGetUserProduct(r.Context(), UserID)
+	products, err := ph.Service.AdminGetUserProduct(r.Context(), userID)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 	}
@@ -125,7 +128,7 @@ func (ph *ProductHandler) UpdateProductByID(rw http.ResponseWriter, r *http.Requ
 
 	//Parsing id form path, validation
 	prodID := chi.URLParam(r, "id")
-	if prodID == strconv.Itoa(0) || prodID == ""{
+	if _, err := uuid.Parse(prodID); err != nil{
 		http.Error(rw, "Invalid ID", http.StatusBadRequest)
 	}
 
@@ -181,7 +184,7 @@ func (ph *ProductHandler) DeleteProductByID(rw http.ResponseWriter, r *http.Requ
 
 	//Parsing id form path, validation
 	prodID := chi.URLParam(r, "id")
-	if prodID == strconv.Itoa(0) || prodID == ""{
+	if _, err := uuid.Parse(prodID); err != nil{
 		http.Error(rw, "Invalid ID", http.StatusBadRequest)
 	}
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"simple-product-api/models"
 	"simple-product-api/utils"
-
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,21 +45,23 @@ func (us *UserService) Register(ctx context.Context, req *models.UserRequest) (*
 
 	//Unique email check
 	data, err := us.Repo.FindByEmail(ctx, req.Email)
+	//either email gk ketemu (bagus) or mmg error waktu exec query
 	if err != nil {
 		return nil, err
 	}
-	if data.Email == req.Email{
+	if data != nil{
 		return nil, errors.New("Email already exist!")
 	}
 
-	//replace info data
-	data.Id =  uuid.New().String()
-	data.Name = req.Name
-	data.Password = string(hashedPassword)
-	data.Email = req.Email
-	data.Role = utils.RoleUser
+	var product = &models.User{
+		Id : uuid.New().String(),
+		Name : req.Name,
+		Password: string(hashedPassword),
+		Email: req.Email,
+		Role: utils.RoleUser,
+	}
 
-	data, err = us.Repo.Register(ctx, data)
+	data, err = us.Repo.Register(ctx, product)
 	if err != nil {
 		return nil, err
 	}

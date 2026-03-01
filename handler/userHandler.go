@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -64,6 +65,12 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	//decode
 	var req = &models.LoginRequest{}
 	err := json.NewDecoder(r.Body).Decode(&req)
+	defer r.Body.Close()
+
+	if err != nil {
+		http.Error(rw, "Error Request", http.StatusBadRequest)
+		return
+	}
 
 	//validate
 	if err := utils.ValidateLogin(req.Email, req.Password); len(err) > 0 {
@@ -73,13 +80,6 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		http.Error(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
-		return
-	}
-
-	defer r.Body.Close()
-
-	if err != nil {
-		http.Error(rw, "Error Request", http.StatusBadRequest)
 		return
 	}
 
@@ -146,8 +146,11 @@ func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
-	//generate id from path
+	//Parsing id form path, validation
 	userID := chi.URLParam(r, "id")
+	if _, err := uuid.Parse(userID); err != nil {
+		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+	}
 
 	data, err := uh.Service.GetUserById(r.Context(), userID)
 	if err != nil {
@@ -213,8 +216,11 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 func (uh *UserHandler) DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
-	//generate id from path
+	//Parsing id form path, validation
 	userID := chi.URLParam(r, "id")
+	if _, err := uuid.Parse(userID); err != nil {
+		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+	}
 
 	response, err := uh.Service.DeleteUser(r.Context(), userID)
 	if err != nil {
