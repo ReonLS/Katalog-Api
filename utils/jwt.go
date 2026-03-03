@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 	"github.com/golang-jwt/jwt/v5"
+	"simple-product-api/config"
 )
 
 //enforce security ()
@@ -13,9 +14,6 @@ type ContextKey string
 const (
 	ClaimsKey ContextKey = "claims"
 )
-
-//initializing properties needed for JWT
-var jwtkey = []byte("codinganrexileon")
 
 //custom claims, designed by including what information's necessary to authorize the user
 type JWTclaim struct{
@@ -35,7 +33,7 @@ func GenerateJWT(id string, email string, role string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(jwtkey)
+	signedToken, err := token.SignedString(config.GetJWTKey())
 
 	return signedToken, err
 }
@@ -52,7 +50,7 @@ func ParseToken(signedToken string) (*JWTclaim, error){
 			if _, ok :=token.Method.(*jwt.SigningMethodHMAC); !ok{
 				return nil, errors.New("Different Signing Method")
 			}
-			return jwtkey, nil
+			return config.GetJWTKey(), nil
 		},
 	)
 	if err != nil {

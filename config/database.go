@@ -8,7 +8,8 @@ import (
 
 func Connect() *sql.DB {
 	//open connection ke database
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/katalog")
+	driver, cString := GetConnectionString()
+	db, err := sql.Open(driver, cString)
 
 	if err != nil {
 		fmt.Println("Database Gagal Connect: ", err)
