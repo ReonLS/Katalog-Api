@@ -1,0 +1,4 @@
+# What to Ignore
+.env
+.git
+*.md

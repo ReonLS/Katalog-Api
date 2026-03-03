@@ -3,9 +3,9 @@ package utils
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 	"github.com/golang-jwt/jwt/v5"
-	"simple-product-api/config"
 )
 
 //enforce security ()
@@ -22,6 +22,12 @@ type JWTclaim struct{
 	jwt.RegisteredClaims
 }
 
+var jwtkey []byte
+
+func Init(){
+	jwtkey = []byte(os.Getenv("JWT_KEY"))
+}
+
 func GenerateJWT(id string, email string, role string) (string, error) {
 	//Alur: Initialize custom struct, lalu generate JWT Token, lalu sign dengan secret key
 	claims := &JWTclaim{
@@ -33,7 +39,7 @@ func GenerateJWT(id string, email string, role string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(config.GetJWTKey())
+	signedToken, err := token.SignedString(jwtkey)
 
 	return signedToken, err
 }
@@ -50,7 +56,7 @@ func ParseToken(signedToken string) (*JWTclaim, error){
 			if _, ok :=token.Method.(*jwt.SigningMethodHMAC); !ok{
 				return nil, errors.New("Different Signing Method")
 			}
-			return config.GetJWTKey(), nil
+			return jwtkeygit , nil
 		},
 	)
 	if err != nil {

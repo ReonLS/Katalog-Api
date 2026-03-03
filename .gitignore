@@ -1,0 +1,2 @@
+# Select which file will automatically be untracked for git commit
+.env

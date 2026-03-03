@@ -5,14 +5,15 @@ import (
 	"net/http"
 	"simple-product-api/config"
 	"simple-product-api/handler"
-	"simple-product-api/route"
 	"simple-product-api/repository"
+	"simple-product-api/route"
 	"simple-product-api/service"
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	//init DB
+	//init DB & Env
+	config.Init()
 	db := config.Connect()
 	defer db.Close()
 
@@ -31,7 +32,7 @@ func main() {
 	r := chi.NewRouter()
 	route.RouteSetup(r)
 
-	err := http.ListenAndServe(":8080", r)
+	err := http.ListenAndServe(config.GetMainPort(), r)
 	if err != nil {
 		fmt.Println("Error: ", err.Error())
 	}

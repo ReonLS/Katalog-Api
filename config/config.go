@@ -28,9 +28,5 @@ func GetConnectionString() (string, string) {
 func GetMainPort() string {
 	// local server port
 	appPort := os.Getenv("APP_PORT")
-	return appPort
-}
-
-func GetJWTKey() []byte {
-	return []byte(os.Getenv("JWT_KEY"))
+	return fmt.Sprintf(":%s", appPort)
 }
