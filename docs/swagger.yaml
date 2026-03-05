@@ -1,0 +1,71 @@
+basePath: /
+definitions:
+  models.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status_code:
+        type: integer
+    type: object
+  models.UserProductResponse:
+    properties:
+      id:
+        type: string
+      kategori:
+        $ref: '#/definitions/utils.Category'
+      namaprod:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    type: object
+  utils.Category:
+    enum:
+    - Baju
+    - Aksesoris
+    - Alas Kaki
+    - Dalaman
+    type: string
+    x-enum-varnames:
+    - CategoryClothes
+    - CategoryAccessory
+    - CategoryFootwear
+    - CategoryInner
+host: localhost:8080
+info:
+  contact: {}
+  description: Type "Bearer" followed by a space and JWT Token
+  title: Simple Product Api Visualization
+  version: "1.0"
+paths:
+  /user/product:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all user's product automatically by userID from context
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserProductResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get All Product
+      tags:
+      - Product
+swagger: "2.0"

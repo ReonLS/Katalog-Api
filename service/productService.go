@@ -8,40 +8,39 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProductService struct{
+type ProductService struct {
 	Repo models.ProductRepository
 }
 
-
-func NewProductService(repo models.ProductRepository) *ProductService{
+func NewProductService(repo models.ProductRepository) *ProductService {
 	return &ProductService{Repo: repo}
 }
 
-func (pr *ProductService) ToProductResponse(p *models.Product) *models.UserProductResponse{
+func (pr *ProductService) ToProductResponse(p *models.Product) *models.UserProductResponse {
 	//transform dari domain struct(db) jd response (json-embedded)
 	return &models.UserProductResponse{
-		Id: p.Id,
+		Id:       p.Id,
 		Namaprod: p.Namaprod,
 		Kategori: p.Kategori,
-		Price: p.Price,
-		Stock: p.Stock,
+		Price:    p.Price,
+		Stock:    p.Stock,
 	}
 }
 
-func (pr *ProductService) ToAdminProductResponse(p *models.Product) *models.AdminProductResponse{
+func (pr *ProductService) ToAdminProductResponse(p *models.Product) *models.AdminProductResponse {
 	//transform dari domain struct(db) jd response (json-embedded)
 	return &models.AdminProductResponse{
-		Id: p.Id,
-		UserId: p.UserId,
+		Id:       p.Id,
+		UserId:   p.UserId,
 		Namaprod: p.Namaprod,
 		Kategori: p.Kategori,
-		Price: p.Price,
-		Stock: p.Stock,
+		Price:    p.Price,
+		Stock:    p.Stock,
 	}
 }
 
-func (pr *ProductService) GetUserProduct(ctx context.Context, userID string)([]*models.UserProductResponse, error){
-	//Alur : Nerima domain struct, transform jadi response 
+func (pr *ProductService) GetUserProduct(ctx context.Context, userID string) ([]*models.UserProductResponse, error) {
+	//Alur : Nerima domain struct, transform jadi response
 	var dataResp []*models.UserProductResponse
 
 	data, err := pr.Repo.GetProductByUserID(ctx, userID)
@@ -50,7 +49,7 @@ func (pr *ProductService) GetUserProduct(ctx context.Context, userID string)([]*
 	}
 
 	//for loop access masing2
-	for _, rows := range data{
+	for _, rows := range data {
 		dataResp = append(dataResp, pr.ToProductResponse(rows))
 	}
 
@@ -58,8 +57,8 @@ func (pr *ProductService) GetUserProduct(ctx context.Context, userID string)([]*
 	return dataResp, nil
 }
 
-func (pr *ProductService) AdminGetUserProduct(ctx context.Context, id string)([]*models.AdminProductResponse, error){
-	//Alur : Nerima domain struct, transform jadi response 
+func (pr *ProductService) AdminGetUserProduct(ctx context.Context, id string) ([]*models.AdminProductResponse, error) {
+	//Alur : Nerima domain struct, transform jadi response
 	var dataResp []*models.AdminProductResponse
 
 	data, err := pr.Repo.GetProductByUserID(ctx, id)
@@ -68,7 +67,7 @@ func (pr *ProductService) AdminGetUserProduct(ctx context.Context, id string)([]
 	}
 
 	//for loop access masing2
-	for _, rows := range data{
+	for _, rows := range data {
 		dataResp = append(dataResp, pr.ToAdminProductResponse(rows))
 	}
 
@@ -76,15 +75,15 @@ func (pr *ProductService) AdminGetUserProduct(ctx context.Context, id string)([]
 	return dataResp, nil
 }
 
-func (pr *ProductService) InsertProduct(ctx context.Context, userid string, req *models.ProductRequest) (*models.UserProductResponse, error){
+func (pr *ProductService) InsertProduct(ctx context.Context, userid string, req *models.ProductRequest) (*models.UserProductResponse, error) {
 	//Alur : Nerima domain struct, generate product.response
 	var data = &models.Product{
-		Id: uuid.New().String(),
-		UserId: userid,
+		Id:       uuid.New().String(),
+		UserId:   userid,
 		Namaprod: req.Namaprod,
 		Kategori: req.Kategori,
-		Price: req.Price,
-		Stock: req.Stock,
+		Price:    req.Price,
+		Stock:    req.Stock,
 	}
 
 	product, err := pr.Repo.InsertProduct(ctx, userid, data)
@@ -96,7 +95,7 @@ func (pr *ProductService) InsertProduct(ctx context.Context, userid string, req 
 	return pr.ToProductResponse(product), nil
 }
 
-func (pr *ProductService) UpdateProductByID(ctx context.Context, ProdID string, userID string, req *models.ProductRequest) (*models.UserProductResponse, error){
+func (pr *ProductService) UpdateProductByID(ctx context.Context, ProdID string, userID string, req *models.ProductRequest) (*models.UserProductResponse, error) {
 	//Alur : Nerima domain struct, generate product.response
 
 	//compare userID.ctx & userID.repo
@@ -106,7 +105,7 @@ func (pr *ProductService) UpdateProductByID(ctx context.Context, ProdID string, 
 	}
 
 	//validasi ownership
-	if userID != data.UserId{
+	if userID != data.UserId {
 		//http forbidden
 		return nil, errors.New("Must be your own products")
 	}
@@ -127,7 +126,7 @@ func (pr *ProductService) UpdateProductByID(ctx context.Context, ProdID string, 
 	return pr.ToProductResponse(product), nil
 }
 
-func (pr *ProductService) DeleteProductByID(ctx context.Context, prodID string, userID string) (*models.UserProductResponse, error){
+func (pr *ProductService) DeleteProductByID(ctx context.Context, prodID string, userID string) (*models.UserProductResponse, error) {
 	//Alur : Nerima domain struct, generate product.response
 	data, err := pr.Repo.GetProductByProdID(ctx, prodID)
 	if err != nil {
@@ -135,7 +134,7 @@ func (pr *ProductService) DeleteProductByID(ctx context.Context, prodID string, 
 	}
 
 	//validasi ownership
-	if userID != data.UserId{
+	if userID != data.UserId {
 		//http forbidden
 		return nil, errors.New("Must be your own products")
 	}

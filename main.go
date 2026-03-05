@@ -1,3 +1,14 @@
+// @title Simple Product Api Visualization
+// @version 1.0
+// @description A Product Catalogue API with Swagger Documentation
+
+// @host localhost:8080
+// @Basepath /
+
+// @security.Definitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT Token
 package main
 
 import (
@@ -8,6 +19,8 @@ import (
 	"simple-product-api/repository"
 	"simple-product-api/route"
 	"simple-product-api/service"
+	_ "simple-product-api/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -32,6 +45,7 @@ func main() {
 	r := chi.NewRouter()
 	route.RouteSetup(r)
 
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 	err := http.ListenAndServe(config.GetMainPort(), r)
 	if err != nil {
 		fmt.Println("Error: ", err.Error())

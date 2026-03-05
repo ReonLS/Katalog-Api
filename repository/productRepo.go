@@ -44,12 +44,12 @@ func (pr *ProductRepo) GetProductByProdID(ctx context.Context, prodID string) (*
 	var data = &models.Product{}
 
 	res := pr.DB.QueryRowContext(ctx, "Select * from product where id = ?", prodID)
-	if err := res.Err(); err != nil{
+	if err := res.Err(); err != nil {
 		return nil, err
 	}
 
 	err := res.Scan(&data.Id, &data.UserId, &data.Namaprod, &data.Kategori, &data.Price, &data.Stock)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	//semua aman

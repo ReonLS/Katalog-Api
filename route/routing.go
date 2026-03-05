@@ -7,18 +7,18 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//ngebuat instans of product handler
-type Route struct{
+// ngebuat instans of product handler
+type Route struct {
 	ProdHandler handler.ProductHandler
 	UserHandler handler.UserHandler
 }
 
-func NewProductRoute(product *handler.ProductHandler, user *handler.UserHandler) *Route{
+func NewProductRoute(product *handler.ProductHandler, user *handler.UserHandler) *Route {
 	return &Route{ProdHandler: *product, UserHandler: *user}
 }
 
-//centralized handler func for /product
-func (route *Route) RouteSetup (r chi.Router){
+// centralized handler func for /product
+func (route *Route) RouteSetup(r chi.Router) {
 	//Public
 	r.Post("/register", route.UserHandler.Register)
 	r.Post("/login", route.UserHandler.Login)
@@ -45,9 +45,9 @@ func (route *Route) RouteSetup (r chi.Router){
 		r.Use(middleware.AuthenticateRole(utils.RoleAdmin))
 
 		//admin/user
-		r.Get("/user", route.UserHandler.GetAllUsers) 
-		r.Get("/user/{id}", route.UserHandler.AdminGetUserProfile) 
-		r.Delete("/user/{id}", route.UserHandler.DeleteUser) 
+		r.Get("/user", route.UserHandler.GetAllUsers)
+		r.Get("/user/{id}", route.UserHandler.AdminGetUserProfile)
+		r.Delete("/user/{id}", route.UserHandler.DeleteUser)
 
 		//admin/user/product
 		r.Get("/{id}/product", route.ProdHandler.AdminGetProductUser)

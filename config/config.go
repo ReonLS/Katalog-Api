@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+
 	"github.com/joho/godotenv"
 )
 
@@ -18,11 +19,11 @@ func Init() {
 func GetConnectionString() (string, string) {
 	driver := os.Getenv("DB_DRIVER")
 	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
+	// password := os.Getenv("DB_PASSWORD")
 	name := os.Getenv("DB_NAME")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
-	return driver, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, name)
+	return driver, fmt.Sprintf("%s:@tcp(%s:%s)/%s", user, host, port, name)
 }
 
 func GetMainPort() string {

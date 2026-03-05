@@ -46,7 +46,7 @@ func (ur *UserRepo) FindByEmail(ctx context.Context, email string) (*models.User
 
 	//Since no email found means good for registration
 	if err != nil {
-		if err == sql.ErrNoRows{
+		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err

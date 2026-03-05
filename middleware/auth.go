@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-//Happens first
+// Happens first
 func AuthenticateJWT(next http.Handler) http.Handler {
-	return http.HandlerFunc( func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization") //Bearer <Tokenstring>
 		if authHeader == "" {
 			http.Error(w, "Bearer String Empty", http.StatusUnauthorized)
@@ -32,10 +32,10 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 	})
 }
 
-//happens after
-func AuthenticateRole(role utils.Role) func(http.Handler) http.Handler{
-	return func (next http.Handler) http.Handler{
-		return http.HandlerFunc( func(w http.ResponseWriter, r *http.Request) {
+// happens after
+func AuthenticateRole(role utils.Role) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			//sebenarnya agak redundant, claims invalid udh stopped di authJWT
 			claims, ok := utils.GetClaimsFromContext(r.Context())
 			if !ok {
@@ -44,7 +44,7 @@ func AuthenticateRole(role utils.Role) func(http.Handler) http.Handler{
 			}
 
 			//cek roles
-			if claims.Role != string(role){
+			if claims.Role != string(role) {
 				http.Error(w, "Incorrect Role Access", http.StatusForbidden)
 				return
 			}

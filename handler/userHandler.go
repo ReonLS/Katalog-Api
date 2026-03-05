@@ -40,13 +40,13 @@ func (uh *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
 			joinedError = append(joinedError, each.Error())
 		}
 
-		http.Error(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
+		GenerateError(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
 		return
 	}
 
 	response, err := uh.Service.Register(r.Context(), req)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusCreated)
@@ -54,7 +54,7 @@ func (uh *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(response)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -68,7 +68,7 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if err != nil {
-		http.Error(rw, "Error Request", http.StatusBadRequest)
+		GenerateError(rw, "Error Request", http.StatusBadRequest)
 		return
 	}
 
@@ -79,14 +79,14 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 			joinedError = append(joinedError, each.Error())
 		}
 
-		http.Error(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
+		GenerateError(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
 		return
 	}
 
 	//could be either error or token
 	token, err := uh.Service.Login(r.Context(), req)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -94,7 +94,7 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(token)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -104,7 +104,7 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request) {
 
 	data, err := uh.Service.GetAllUsers(r.Context())
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -112,7 +112,7 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(data)
 	if err != nil {
 		//server-side error
-		http.Error(rw, "Gagal Encode", http.StatusInternalServerError)
+		GenerateError(rw, "Gagal Encode", http.StatusInternalServerError)
 		return
 	}
 }
@@ -124,12 +124,12 @@ func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 	//Alur: ambil claims dari context, populate id dengan context id
 	claims, ok := utils.GetClaimsFromContext(r.Context())
 	if !ok {
-		http.Error(rw, "Failed Claims", http.StatusUnauthorized)
+		GenerateError(rw, "Failed Claims", http.StatusUnauthorized)
 	}
 
 	data, err := uh.Service.GetUserProfile(r.Context(), claims.Id)
 	if err != nil {
-		http.Error(rw, "", http.StatusBadRequest)
+		GenerateError(rw, "", http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -137,7 +137,7 @@ func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(data)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -149,12 +149,12 @@ func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Reque
 	//Parsing id form path, validation
 	userID := chi.URLParam(r, "id")
 	if _, err := uuid.Parse(userID); err != nil {
-		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+		GenerateError(rw, "Invalid ID", http.StatusBadRequest)
 	}
 
 	data, err := uh.Service.GetUserById(r.Context(), userID)
 	if err != nil {
-		http.Error(rw, "", http.StatusBadRequest)
+		GenerateError(rw, "", http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -162,7 +162,7 @@ func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Reque
 	err = json.NewEncoder(rw).Encode(data)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -177,13 +177,13 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 	}
 
 	//Alur: ambil claims dari context, populate id dengan context id
 	claims, ok := utils.GetClaimsFromContext(r.Context())
 	if !ok {
-		http.Error(rw, "Failed Claims", http.StatusUnauthorized)
+		GenerateError(rw, "Failed Claims", http.StatusUnauthorized)
 	}
 
 	//validate
@@ -194,13 +194,13 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 			joinedError = append(joinedError, each.Error())
 		}
 
-		http.Error(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
+		GenerateError(rw, strings.Join(joinedError, "\n"), http.StatusBadRequest)
 		return
 	}
 
 	response, err := uh.Service.UpdateUserProfile(r.Context(), claims.Id, req)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -208,7 +208,7 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(response)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -219,12 +219,12 @@ func (uh *UserHandler) DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	//Parsing id form path, validation
 	userID := chi.URLParam(r, "id")
 	if _, err := uuid.Parse(userID); err != nil {
-		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+		GenerateError(rw, "Invalid ID", http.StatusBadRequest)
 	}
 
 	response, err := uh.Service.DeleteUser(r.Context(), userID)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
@@ -232,7 +232,7 @@ func (uh *UserHandler) DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(rw).Encode(response)
 	if err != nil {
 		//server-side error
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
