@@ -20,6 +20,16 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{Service: service}
 }
 
+// @Summary Register account
+// @description Generate a user account when successful
+// @tags Public
+// @accept json
+// @Produce json
+// @Param user body models.UserRequest true "Create Account"
+// @Success 201 {object} models.UserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /register [POST]
 func (uh *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -59,6 +69,16 @@ func (uh *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary Log in
+// @description Authenticate user to generate JWT
+// @tags Public
+// @accept json
+// @Produce plain
+// @Param user body models.LoginRequest true "Login Account"
+// @Success 200 {string} string "JWT Token"
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /login [POST]
 func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -99,25 +119,18 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
-	data, err := uh.Service.GetAllUsers(r.Context())
-	if err != nil {
-		GenerateError(rw, err.Error(), http.StatusBadRequest)
-		return
-	}
-	rw.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(rw).Encode(data)
-	if err != nil {
-		//server-side error
-		GenerateError(rw, "Gagal Encode", http.StatusInternalServerError)
-		return
-	}
-}
-
-// User
+// @Summary Get profile
+// @description User get their profile
+// @tags User
+// @accept json
+// @Produce json
+// @Success 200 {object} models.UserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 401 {object} models.UnauthorizedResponse 
+// @Failure 403 {object} models.ForbiddenResponse
+// @Failure 404 {object} models.ErrorResponse 
+// @Router /user [GET]
+// @Security BearerAuth
 func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -142,32 +155,19 @@ func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Admin
-func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
-	//Parsing id form path, validation
-	userID := chi.URLParam(r, "id")
-	if _, err := uuid.Parse(userID); err != nil {
-		GenerateError(rw, "Invalid ID", http.StatusBadRequest)
-	}
-
-	data, err := uh.Service.GetUserById(r.Context(), userID)
-	if err != nil {
-		GenerateError(rw, "", http.StatusBadRequest)
-		return
-	}
-	rw.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(rw).Encode(data)
-	if err != nil {
-		//server-side error
-		GenerateError(rw, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-// user
+// @Summary Update profile
+// @description User update profile
+// @tags User
+// @accept json
+// @Produce json
+// @Param user body models.UserRequest true "Update Account Information"
+// @Success 200 {object} models.UserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 401 {object} models.UnauthorizedResponse 
+// @Failure 403 {object} models.ForbiddenResponse
+// @Failure 404 {object} models.ErrorResponse 
+// @Router /user [PUT]
+// @Security BearerAuth
 func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -213,6 +213,86 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary Admin get users
+// @description Return all existing users
+// @tags Admin
+// @accept json
+// @Produce json
+// @Success 200 {array} models.AdminUserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 401 {object} models.UnauthorizedResponse 
+// @Failure 403 {object} models.ForbiddenResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /admin/user [GET]
+// @Security BearerAuth
+func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
+	data, err := uh.Service.GetAllUsers(r.Context())
+	if err != nil {
+		GenerateError(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	rw.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(rw).Encode(data)
+	if err != nil {
+		//server-side error
+		GenerateError(rw, "Gagal Encode", http.StatusInternalServerError)
+		return
+	}
+}
+
+// @Summary Admin get user profile
+// @description get user profile by their unique ID
+// @tags Admin
+// @accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.AdminUserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 401 {object} models.UnauthorizedResponse 
+// @Failure 403 {object} models.ForbiddenResponse
+// @Failure 404 {object} models.ErrorResponse 
+// @Router /admin/user/{id} [GET]
+// @Security BearerAuth
+func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
+	//Parsing id form path, validation
+	userID := chi.URLParam(r, "id")
+	if _, err := uuid.Parse(userID); err != nil {
+		GenerateError(rw, "Invalid ID", http.StatusBadRequest)
+	}
+
+	data, err := uh.Service.GetUserById(r.Context(), userID)
+	if err != nil {
+		GenerateError(rw, "", http.StatusBadRequest)
+		return
+	}
+	rw.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(rw).Encode(data)
+	if err != nil {
+		//server-side error
+		GenerateError(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// @Summary Admin delete user
+// @description Admin removes user account by their unique ID
+// @tags Admin
+// @accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.AdminUserResponse
+// @Failure 400 {object} models.BadRequestResponse
+// @Failure 401 {object} models.UnauthorizedResponse 
+// @Failure 403 {object} models.ForbiddenResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /admin/user{id} [DELETE]
+// @Security BearerAuth
 func (uh *UserHandler) DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 

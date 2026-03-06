@@ -26,25 +26,25 @@ type Product struct {
 // for now, req ada user id jd bs ambil produk apa yg milik user id itu (next auto cek based by authorization on middleware)
 // jadi cuman bs liat produk unik milik user
 type ProductRequest struct {
-	Namaprod string         `json:"namaprod"`
-	Kategori utils.Category `json:"kategori"`
-	Price    float64        `json:"price"`
-	Stock    int            `json:"stock"`
+	Namaprod string         `json:"namaprod" example:"Kemeja Putih"`
+	Kategori utils.Category `json:"kategori" example:"Baju"`
+	Price    float64        `json:"price" example:"120.5"`
+	Stock    int            `json:"stock" example:"15"`
 }
 
 type UserProductResponse struct {
-	Id       string         `json:"id"`
-	Namaprod string         `json:"namaprod"`
-	Kategori utils.Category `json:"kategori"`
-	Price    float64        `json:"price"`
-	Stock    int            `json:"stock"`
+	Id       string         `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Namaprod string         `json:"namaprod" example:"Kemeja Putih"`
+	Kategori utils.Category `json:"kategori" example:"Baju"`
+	Price    float64        `json:"price" example:"120.5"`
+	Stock    int            `json:"stock" example:"15"`
 }
 
 type AdminProductResponse struct {
-	Id       string         `json:"id"`
-	UserId   string         `json:"userid"`
-	Namaprod string         `json:"namaprod"`
-	Kategori utils.Category `json:"kategori"`
-	Price    float64        `json:"price"`
-	Stock    int            `json:"stock"`
+	Id       string         `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	UserId   string         `json:"userid" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Namaprod string         `json:"namaprod" example:"Kemeja Putih"`
+	Kategori utils.Category `json:"kategori" example:"Baju"`
+	Price    float64        `json:"price" example:"120.5"`
+	Stock    int            `json:"stock" example:"15"`
 }

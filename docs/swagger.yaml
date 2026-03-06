@@ -1,24 +1,146 @@
-basePath: /
+basePath: /api/v1
 definitions:
+  models.AdminProductResponse:
+    properties:
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      kategori:
+        allOf:
+        - $ref: '#/definitions/utils.Category'
+        example: Baju
+      namaprod:
+        example: Kemeja Putih
+        type: string
+      price:
+        example: 120.5
+        type: number
+      stock:
+        example: 15
+        type: integer
+      userid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  models.AdminUserResponse:
+    properties:
+      email:
+        example: john@gmail.com
+        type: string
+      id:
+        example: 4dc0e876-8f8a-41c4-be90-e35da0105ccf
+        type: string
+      name:
+        example: John
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/utils.Role'
+        example: User
+    type: object
+  models.BadRequestResponse:
+    properties:
+      message:
+        example: Name may not be empty
+        type: string
+      status_code:
+        example: 400
+        type: integer
+    type: object
   models.ErrorResponse:
     properties:
       message:
+        example: An Error Occured
         type: string
       status_code:
+        example: 404
+        type: integer
+    type: object
+  models.ForbiddenResponse:
+    properties:
+      message:
+        example: Insufficient access level
+        type: string
+      status_code:
+        example: 403
+        type: integer
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        example: john@gmail.com
+        type: string
+      password:
+        example: john1234
+        type: string
+    type: object
+  models.ProductRequest:
+    properties:
+      kategori:
+        allOf:
+        - $ref: '#/definitions/utils.Category'
+        example: Baju
+      namaprod:
+        example: Kemeja Putih
+        type: string
+      price:
+        example: 120.5
+        type: number
+      stock:
+        example: 15
+        type: integer
+    type: object
+  models.UnauthorizedResponse:
+    properties:
+      message:
+        example: Invalid or expired token
+        type: string
+      status_code:
+        example: 401
         type: integer
     type: object
   models.UserProductResponse:
     properties:
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       kategori:
-        $ref: '#/definitions/utils.Category'
+        allOf:
+        - $ref: '#/definitions/utils.Category'
+        example: Baju
       namaprod:
+        example: Kemeja Putih
         type: string
       price:
+        example: 120.5
         type: number
       stock:
+        example: 15
         type: integer
+    type: object
+  models.UserRequest:
+    properties:
+      email:
+        example: john@gmail.com
+        type: string
+      name:
+        example: John
+        type: string
+      password:
+        example: john1234
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      email:
+        example: john@gmail.com
+        type: string
+      id:
+        example: 4dc0e876-8f8a-41c4-be90-e35da0105ccf
+        type: string
+      name:
+        example: John
+        type: string
     type: object
   utils.Category:
     enum:
@@ -32,13 +154,304 @@ definitions:
     - CategoryAccessory
     - CategoryFootwear
     - CategoryInner
+  utils.Role:
+    enum:
+    - User
+    - Admin
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
 host: localhost:8080
 info:
   contact: {}
-  description: Type "Bearer" followed by a space and JWT Token
-  title: Simple Product Api Visualization
+  description: A product catalogue API in Go. for this project, JWT token generated
+    with HS256 algo is needed to test Authorization filter
+  title: Product Catalogue Service
   version: "1.0"
 paths:
+  /admin/{id}/product:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all user's product by their unique id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AdminProductResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Admin get all specific user's Product
+      tags:
+      - Admin
+  /admin/user:
+    get:
+      consumes:
+      - application/json
+      description: Return all existing users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AdminUserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Admin get users
+      tags:
+      - Admin
+  /admin/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user profile by their unique ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AdminUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Admin get user profile
+      tags:
+      - Admin
+  /admin/user{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Admin removes user account by their unique ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AdminUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Admin delete user
+      tags:
+      - Admin
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user to generate JWT
+      parameters:
+      - description: Login Account
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: JWT Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Log in
+      tags:
+      - Public
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Generate a user account when successful
+      parameters:
+      - description: Create Account
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Register account
+      tags:
+      - Public
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: User get their profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: User update profile
+      parameters:
+      - description: Update Account Information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update profile
+      tags:
+      - User
   /user/product:
     get:
       consumes:
@@ -53,19 +466,158 @@ paths:
             items:
               $ref: '#/definitions/models.UserProductResponse'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/models.UnauthorizedResponse'
         "403":
           description: Forbidden
           schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Get All Product
+      security:
+      - BearerAuth: []
+      summary: Get all product
       tags:
-      - Product
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Insert product into user's product catalogue
+      parameters:
+      - description: Insert Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/models.UserProductResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Inserting a product
+      tags:
+      - User
+  /user/product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user's product by its unique id
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserProductResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Deleting a product
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Updating a user's product by its unique id
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserProductResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Updating a product
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT Token
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
+tags:
+- description: Public operations
+  name: Public
+- description: Operations restricted only to user with role "User"
+  name: User
+- description: Operations restricted only to user with role "Admin"
+  name: Admin
