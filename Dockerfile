@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Generate a compiled executable binary in /app called simple-product-api
-RUN go build -o simple-product-api
+RUN go build -o katalog-api
 
 #Stage 2 - Runner
 # Only using alpine, a minimal linux image without go compiler, reduce sizes
@@ -27,10 +27,10 @@ FROM alpine:latest
 WORKDIR /app
 
 # Only take generated executable binary and copy it to current workdir (reduce size by removing source code, dependencies etc)
-COPY --from=builder /app/simple-product-api .
+COPY --from=builder /app/katalog-api .
 
 # Default action when running this container, run the simple-product/api binary
-CMD ["./simple-product-api"]
+CMD ["./katalog-api"]
 
 
 
