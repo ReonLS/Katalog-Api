@@ -16,7 +16,7 @@ RUN go mod download
 # copy all source code from current dir (.) into workdir container (.)
 COPY . .
 
-# Generate a compiled executable binary in /app called simple-product-api
+# Generate a compiled executable binary in /app called katalog-api
 RUN go build -o katalog-api
 
 #Stage 2 - Runner

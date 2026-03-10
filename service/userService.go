@@ -71,25 +71,21 @@ func (us *UserService) Register(ctx context.Context, req *models.UserRequest) (*
 }
 
 func (ur *UserService) Login(ctx context.Context, req *models.LoginRequest) (string, error) {
-	//Alur: get user from repo, bandingin password
 	data, err := ur.Repo.FindByEmail(ctx, req.Email)
 	if err != nil {
 		return "", err
 	}
 
-	//compare password
 	err = bcrypt.CompareHashAndPassword([]byte(data.Password), []byte(req.Password))
 	if err != nil {
 		return "", err
 	}
 
-	//placeholder untuk generate jwt token
 	signedToken, err := utils.GenerateJWT(data.Id, data.Email, string(data.Role))
 	if err != nil {
 		return "", err
 	}
 
-	//return data dengan jwt
 	return signedToken, err
 }
 
@@ -128,7 +124,6 @@ func (us *UserService) GetUserProfile(ctx context.Context, id string) (*models.U
 }
 
 func (us *UserService) UpdateUserProfile(ctx context.Context, id string, req *models.UserRequest) (*models.UserResponse, error) {
-	//panggil fungsi hash password, hasilnya diset sebagai password data
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -145,7 +140,6 @@ func (us *UserService) UpdateUserProfile(ctx context.Context, id string, req *mo
 		return nil, err
 	}
 
-	//if userRole = admin, toAdminUserResponse
 	return ToUserResponse(data), nil
 }
 

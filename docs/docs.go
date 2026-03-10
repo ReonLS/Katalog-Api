@@ -71,7 +71,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Return all existing users",
+                "description": "Return all user's profile information",
                 "consumes": [
                     "application/json"
                 ],
@@ -81,7 +81,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Admin get users",
+                "summary": "Get all user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -126,7 +126,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "get user profile by their unique ID",
+                "description": "Returns a user's profile by userID",
                 "consumes": [
                     "application/json"
                 ],
@@ -136,11 +136,11 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Admin get user profile",
+                "summary": "Get user profile",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "UserID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -185,7 +185,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Admin removes user account by their unique ID",
+                "description": "Returns deleted user's profile information",
                 "consumes": [
                     "application/json"
                 ],
@@ -195,7 +195,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Admin delete user",
+                "summary": "Delete user",
                 "parameters": [
                     {
                         "type": "string",
@@ -256,7 +256,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get all user's product",
+                "summary": "Get user product by UserID",
                 "parameters": [
                     {
                         "type": "string",
@@ -299,7 +299,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Authenticate user to generate JWT",
+                "description": "Authenticate user credentials and return a signed JWT token",
                 "consumes": [
                     "application/json"
                 ],
@@ -309,10 +309,10 @@ const docTemplate = `{
                 "tags": [
                     "Public"
                 ],
-                "summary": "Log in",
+                "summary": "Authenticate user",
                 "parameters": [
                     {
-                        "description": "Login Account",
+                        "description": "User credentials",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -345,7 +345,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Generate a user account when successful",
+                "description": "Create a new user account with the User role",
                 "consumes": [
                     "application/json"
                 ],
@@ -355,10 +355,10 @@ const docTemplate = `{
                 "tags": [
                     "Public"
                 ],
-                "summary": "Register account",
+                "summary": "Register a new user account",
                 "parameters": [
                     {
-                        "description": "Create Account",
+                        "description": "User credentials",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -396,7 +396,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "User get their profile",
+                "description": "Returns user's credential information",
                 "consumes": [
                     "application/json"
                 ],
@@ -406,7 +406,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get profile",
+                "summary": "Get user profile",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -446,7 +446,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "User update profile",
+                "description": "Returns user's newly updated credentials",
                 "consumes": [
                     "application/json"
                 ],
@@ -456,10 +456,10 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Update profile",
+                "summary": "Update user profile",
                 "parameters": [
                     {
-                        "description": "Update Account Information",
+                        "description": "User credentials",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -556,7 +556,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Insert product into user's product catalogue",
+                "description": "Returns inserted product's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -569,7 +569,7 @@ const docTemplate = `{
                 "summary": "Insert product",
                 "parameters": [
                     {
-                        "description": "Insert Product",
+                        "description": "Product credentials",
                         "name": "product",
                         "in": "body",
                         "required": true,
@@ -622,7 +622,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updating a user's product by its unique id",
+                "description": "Returns updated product's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -632,7 +632,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Update product",
+                "summary": "Update product by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -693,7 +693,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete a user's product by its unique id",
+                "description": "Returns deleted product's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -703,7 +703,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Deleting product",
+                "summary": "Delete product by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -994,7 +994,7 @@ const docTemplate = `{
     },
     "tags": [
         {
-            "description": "Public operations",
+            "description": "Publicly accessible endpoints",
             "name": "Public"
         },
         {
@@ -1014,8 +1014,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Product Catalogue Service",
-	Description:      "A product catalogue API in Go. for this project, JWT token generated with HS256 algo is needed to test Authorization filter",
+	Title:            "Product Katalog",
+	Description:      "A RESTful product catalogue API built in Go, featuring JWT-based authentication (HS256) and role-based access control. Protected endpoints require a Bearer token obtained via `POST /api/v1/login`. Two roles are supported: `User` and `Admin`, each with distinct access levels.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

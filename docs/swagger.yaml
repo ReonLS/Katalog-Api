@@ -165,9 +165,11 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: A product catalogue API in Go. for this project, JWT token generated
-    with HS256 algo is needed to test Authorization filter
-  title: Product Catalogue Service
+  description: 'A RESTful product catalogue API built in Go, featuring JWT-based authentication
+    (HS256) and role-based access control. Protected endpoints require a Bearer token
+    obtained via `POST /api/v1/login`. Two roles are supported: `User` and `Admin`,
+    each with distinct access levels.'
+  title: Product Katalog
   version: "1.0"
 paths:
   /admin/{id}/product:
@@ -204,7 +206,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get all user's product
+      summary: Get user product by UserID
       tags:
       - Admin
   /admin/product:
@@ -242,7 +244,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Return all existing users
+      description: Return all user's profile information
       produces:
       - application/json
       responses:
@@ -270,14 +272,14 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Admin get users
+      summary: Get all user
       tags:
       - Admin
   /admin/user/{id}:
     delete:
       consumes:
       - application/json
-      description: Admin removes user account by their unique ID
+      description: Returns deleted user's profile information
       parameters:
       - description: User ID
         in: path
@@ -309,15 +311,15 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Admin delete user
+      summary: Delete user
       tags:
       - Admin
     get:
       consumes:
       - application/json
-      description: get user profile by their unique ID
+      description: Returns a user's profile by userID
       parameters:
-      - description: User ID
+      - description: UserID
         in: path
         name: id
         required: true
@@ -347,16 +349,16 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Admin get user profile
+      summary: Get user profile
       tags:
       - Admin
   /login:
     post:
       consumes:
       - application/json
-      description: Authenticate user to generate JWT
+      description: Authenticate user credentials and return a signed JWT token
       parameters:
-      - description: Login Account
+      - description: User credentials
         in: body
         name: user
         required: true
@@ -377,16 +379,16 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Log in
+      summary: Authenticate user
       tags:
       - Public
   /register:
     post:
       consumes:
       - application/json
-      description: Generate a user account when successful
+      description: Create a new user account with the User role
       parameters:
-      - description: Create Account
+      - description: User credentials
         in: body
         name: user
         required: true
@@ -407,14 +409,14 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Register account
+      summary: Register a new user account
       tags:
       - Public
   /user:
     get:
       consumes:
       - application/json
-      description: User get their profile
+      description: Returns user's credential information
       produces:
       - application/json
       responses:
@@ -440,15 +442,15 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get profile
+      summary: Get user profile
       tags:
       - User
     put:
       consumes:
       - application/json
-      description: User update profile
+      description: Returns user's newly updated credentials
       parameters:
-      - description: Update Account Information
+      - description: User credentials
         in: body
         name: user
         required: true
@@ -479,7 +481,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update profile
+      summary: Update user profile
       tags:
       - User
   /user/product:
@@ -516,9 +518,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Insert product into user's product catalogue
+      description: Returns inserted product's information
       parameters:
-      - description: Insert Product
+      - description: Product credentials
         in: body
         name: product
         required: true
@@ -558,7 +560,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete a user's product by its unique id
+      description: Returns deleted product's information
       parameters:
       - description: Product ID
         in: path
@@ -588,13 +590,13 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Deleting product
+      summary: Delete product by ID
       tags:
       - User
     put:
       consumes:
       - application/json
-      description: Updating a user's product by its unique id
+      description: Returns updated product's information
       parameters:
       - description: Product ID
         in: path
@@ -634,7 +636,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update product
+      summary: Update product by ID
       tags:
       - User
 securityDefinitions:
@@ -645,7 +647,7 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
-- description: Public operations
+- description: Publicly accessible endpoints
   name: Public
 - description: Operations restricted only to user with role "User"
   name: User

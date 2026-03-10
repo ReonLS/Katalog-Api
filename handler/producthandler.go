@@ -48,11 +48,11 @@ func (ph *ProductHandler) GetProduct(rw http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Insert product
-// @description Insert product into user's product catalogue
+// @description Returns inserted product's information
 // @tags User
 // @accept json
 // @Produce json
-// @Param product body models.ProductRequest true "Insert Product"
+// @Param product body models.ProductRequest true "Product credentials"
 // @Success 201 {array} models.UserProductResponse
 // @Failure 400 {object} models.BadRequestResponse
 // @Failure 401 {object} models.UnauthorizedResponse 
@@ -91,8 +91,8 @@ func (ph *ProductHandler) InsertProduct(rw http.ResponseWriter, r *http.Request)
 	WriteJSON(rw, http.StatusCreated, response)
 }
 
-// @Summary Update product
-// @description Updating a user's product by its unique id
+// @Summary Update product by ID
+// @description Returns updated product's information
 // @tags User
 // @accept json
 // @Produce json
@@ -142,8 +142,8 @@ func (ph *ProductHandler) UpdateProductByID(rw http.ResponseWriter, r *http.Requ
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Deleting product
-// @description Delete a user's product by its unique id
+// @Summary Delete product by ID
+// @description Returns deleted product's information
 // @tags User
 // @accept json
 // @Produce json
@@ -175,7 +175,7 @@ func (ph *ProductHandler) DeleteProductByID(rw http.ResponseWriter, r *http.Requ
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Get all user's product
+// @Summary Get user product by UserID
 // @description Returns all product belonging to a user
 // @tags Admin
 // @accept json

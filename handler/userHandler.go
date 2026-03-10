@@ -20,12 +20,12 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{Service: service}
 }
 
-// @Summary Register account
-// @description Generate a user account when successful
+// @Summary Register a new user account
+// @description Create a new user account with the User role
 // @tags Public
 // @accept json
 // @Produce json
-// @Param user body models.UserRequest true "Create Account"
+// @Param user body models.UserRequest true "User credentials"
 // @Success 201 {object} models.UserResponse
 // @Failure 400 {object} models.BadRequestResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -55,12 +55,12 @@ func (uh *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	WriteJSON(rw, http.StatusCreated, response)
 }
 
-// @Summary Log in
-// @description Authenticate user to generate JWT
+// @Summary Authenticate user
+// @description Authenticate user credentials and return a signed JWT token
 // @tags Public
 // @accept json
 // @Produce plain
-// @Param user body models.LoginRequest true "Login Account"
+// @Param user body models.LoginRequest true "User credentials"
 // @Success 200 {string} string "JWT Token"
 // @Failure 400 {object} models.BadRequestResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -90,8 +90,8 @@ func (uh *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	WriteJSON(rw, http.StatusOK, token)
 }
 
-// @Summary Get profile
-// @description User get their profile
+// @Summary Get user profile
+// @description Returns user's credential information
 // @tags User
 // @accept json
 // @Produce json
@@ -117,12 +117,12 @@ func (uh *UserHandler) GetProfile(rw http.ResponseWriter, r *http.Request) {
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Update profile
-// @description User update profile
+// @Summary Update user profile
+// @description Returns user's newly updated credentials
 // @tags User
 // @accept json
 // @Produce json
-// @Param user body models.UserRequest true "Update Account Information"
+// @Param user body models.UserRequest true "User credentials"
 // @Success 200 {object} models.UserResponse
 // @Failure 400 {object} models.BadRequestResponse
 // @Failure 401 {object} models.UnauthorizedResponse 
@@ -161,8 +161,8 @@ func (uh *UserHandler) UpdateProfile(rw http.ResponseWriter, r *http.Request) {
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Admin get users
-// @description Return all existing users
+// @Summary Get all user
+// @description Return all user's profile information
 // @tags Admin
 // @accept json
 // @Produce json
@@ -182,12 +182,12 @@ func (uh *UserHandler) GetAllUsers(rw http.ResponseWriter, r *http.Request) {
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Admin get user profile
-// @description get user profile by their unique ID
+// @Summary Get user profile
+// @description Returns a user's profile by userID
 // @tags Admin
 // @accept json
 // @Produce json
-// @Param id path string true "User ID"
+// @Param id path string true "UserID"
 // @Success 200 {object} models.AdminUserResponse
 // @Failure 400 {object} models.BadRequestResponse
 // @Failure 401 {object} models.UnauthorizedResponse 
@@ -210,8 +210,8 @@ func (uh *UserHandler) AdminGetUserProfile(rw http.ResponseWriter, r *http.Reque
 	WriteJSON(rw, http.StatusOK, response)
 }
 
-// @Summary Admin delete user
-// @description Admin removes user account by their unique ID
+// @Summary Delete user
+// @description Returns deleted user's profile information
 // @tags Admin
 // @accept json
 // @Produce json

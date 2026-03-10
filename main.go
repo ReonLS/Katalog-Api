@@ -1,10 +1,10 @@
-// @title Product Catalogue Service
+// @title Product Katalog
 // @version 1.0
-// @description A product catalogue API in Go. for this project, JWT token generated with HS256 algo is needed to test Authorization filter
+// @description A RESTful product catalogue API built in Go, featuring JWT-based authentication (HS256) and role-based access control. Protected endpoints require a Bearer token obtained via `POST /api/v1/login`. Two roles are supported: `User` and `Admin`, each with distinct access levels.
 // @host localhost:8080
 // @Basepath /api/v1
 // @tag.name Public
-// @tag.description Public operations
+// @tag.description Publicly accessible endpoints
 // @tag.name User
 // @tag.description Operations restricted only to user with role "User"
 // @tag.name Admin
